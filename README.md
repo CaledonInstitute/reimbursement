@@ -16,6 +16,12 @@ Aplikasi web untuk mengelola pengajuan reimbursement karyawan dari pembuatan kla
 ### Review Manager
 ![Review Manager](docs/screenshots/manager-review.png)
 
+### Dashboard Finance
+![Dashboard Finance](docs/screenshots/dashboard-finance.png)
+
+### Verifikasi Finance
+![Verifikasi Finance](docs/screenshots/finance-verify.png)
+
 ## Fitur utama
 
 - Employee membuat reimbursement, menambahkan expense, mengunggah bukti, lalu mengirim pengajuan.
