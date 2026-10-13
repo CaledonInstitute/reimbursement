@@ -1,0 +1,9 @@
+# Root-level
+.env
+.claude/
+node_modules/
+dist/
+.next/
+uploads/
+*.log
+.DS_Store

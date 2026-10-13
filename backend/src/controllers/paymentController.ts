@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import paymentService from '../services/paymentService';
 import apiView from '../views/apiView';
+import { uploadReceiptToMinio } from '../middleware/uploadReceipt';
 
 const getPayment: RequestHandler = async (req, res, next) => {
   try {
@@ -46,7 +47,7 @@ const uploadProof: RequestHandler = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'File bukti transfer wajib dikirim.' });
     }
 
-    const proofUrl = `${authReq.protocol}://${authReq.get('host')}/uploads/${authReq.file.filename}`;
+    const proofUrl = await uploadReceiptToMinio(authReq.file);
     const payment: any = await paymentService.uploadProof(authReq.params.reimbursementId, proofUrl, authReq.user);
 
     if (!payment) {

@@ -1,5 +1,8 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
+import { SessionProvider } from '@/app/session'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -22,13 +25,13 @@ export const metadata: Metadata = {
     apple: '/apple-icon.png',
   },
   other: {
-    'msapplication-TileColor': '#1f2937',
+    'msapplication-TileColor': '#0A0A0A',
   },
 }
 
 export const viewport: Viewport = {
   colorScheme: 'light dark',
-  themeColor: '#e8722a',
+  themeColor: '#0A0A0A',
 }
 
 export default function RootLayout({
@@ -37,9 +40,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="id">
-      <body className="antialiased">
-        {children}
+    <html lang="id" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className="font-sans antialiased">
+        <SessionProvider>{children}</SessionProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

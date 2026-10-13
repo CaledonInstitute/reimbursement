@@ -2,6 +2,27 @@ import withPWA from '@ducanh2912/next-pwa'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async rewrites() {
+    return [
+      {
+        source: '/auth/google/:path*',
+        destination: (process.env.BACKEND_URL || 'http://localhost:3001') + '/auth/google/:path*',
+      },
+      {
+        source: '/api/auth/google/:path*',
+        destination: (process.env.BACKEND_URL || 'http://localhost:3001') + '/auth/google/:path*',
+      },
+      {
+        source: '/api/auth/google',
+        destination: (process.env.BACKEND_URL || 'http://localhost:3001') + '/auth/google',
+      },
+      {
+        source: '/api/:path*',
+        destination: (process.env.BACKEND_URL || 'http://localhost:3001') + '/api/:path*',
+      },
+    ];
+  },
+  allowedDevOrigins: ['feels-significant-replaced-forecast.trycloudflare.com'],
   typescript: {
     ignoreBuildErrors: true,
   },

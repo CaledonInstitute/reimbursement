@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import expenseService from '../services/expenseService';
 import apiView from '../views/apiView';
+import { uploadReceiptToMinio } from '../middleware/uploadReceipt';
 
 const listExpenses: RequestHandler = async (req, res, next) => {
   try {
@@ -52,7 +53,7 @@ const uploadReceipt: RequestHandler = async (req, res, next) => {
     if (!authReq.file) {
       return res.status(400).json({ success: false, message: 'File bukti wajib dikirim.' });
     }
-    const receiptUrl = `${authReq.protocol}://${authReq.get('host')}/uploads/${authReq.file.filename}`;
+    const receiptUrl = await uploadReceiptToMinio(authReq.file);
     const expense = await expenseService.updateReceipt(authReq.params.id, receiptUrl, authReq.user);
     if (!expense) return res.status(404).json({ success: false, message: 'Expense tidak ditemukan.' });
     return res.json({ success: true, data: apiView.formatExpense(expense) });

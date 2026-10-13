@@ -14,6 +14,7 @@ import auditLogRoutes from './routes/auditLogRoutes';
 import reportRoutes from './routes/reportRoutes';
 import profileRoutes from './routes/profileRoutes';
 import authRoutes from './routes/authRoutes';
+import googleRoutes from './routes/googleRoutes';
 import authenticate from './middleware/authMiddleware';
 
 const app = express();
@@ -45,6 +46,7 @@ app.get('/', (_req: Request, res: Response) => {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
 app.use('/api/auth', authRoutes);
+app.use('/auth', googleRoutes);
 app.use('/api/reimbursements', authenticate, reimbursementRoutes);
 app.use('/api/reimbursements/:reimbursementId/expenses', authenticate, expenseRoutes);
 app.use('/api/reimbursements/:reimbursementId/payment', authenticate, paymentRoutes);

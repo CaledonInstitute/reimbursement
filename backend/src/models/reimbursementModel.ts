@@ -90,7 +90,7 @@ const createReimbursement = async ({
     if (!Number.isFinite(expenseAmount) || expenseAmount <= 0 || Number.isNaN(expenseDate.getTime())) {
       throw new Error('Data expense tidak valid.');
     }
-    if (expenseDate > new Date()) throw new Error('expenseDate tidak boleh di masa depan.');
+    if (expenseDate.getTime() > Date.now() + 10 * 60 * 1000) throw new Error('expenseDate tidak boleh di masa depan.');
 
     return {
       category: expense.category,
@@ -178,7 +178,7 @@ const updateById = async (id: unknown, updates: any) => {
     if (!Number.isFinite(expenseAmount) || expenseAmount <= 0 || Number.isNaN(expenseDate.getTime())) {
       throw new Error('Data expense tidak valid.');
     }
-    if (expenseDate > new Date()) throw new Error('expenseDate tidak boleh di masa depan.');
+    if (expenseDate.getTime() > Date.now() + 10 * 60 * 1000) throw new Error('expenseDate tidak boleh di masa depan.');
 
     return {
       category: expense.category,

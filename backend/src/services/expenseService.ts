@@ -38,7 +38,8 @@ const validateExpense = ({ category, amount, expenseDate, description }: any) =>
   if (Number.isNaN(parsedDate.getTime())) {
     throw new Error('expenseDate tidak valid.');
   }
-  if (parsedDate > new Date()) {
+  // Toleransi 10 menit untuk clock skew antara device user dan server
+  if (parsedDate.getTime() > Date.now() + 10 * 60 * 1000) {
     throw new Error('expenseDate tidak boleh di masa depan.');
   }
 
@@ -106,7 +107,7 @@ const updateExpense = async (id: unknown, payload: any, user: any) => {
   if (payload.expenseDate !== undefined) {
     const expenseDate = new Date(payload.expenseDate);
     if (Number.isNaN(expenseDate.getTime())) throw new Error('expenseDate tidak valid.');
-    if (expenseDate > new Date()) throw new Error('expenseDate tidak boleh di masa depan.');
+    if (expenseDate.getTime() > Date.now() + 10 * 60 * 1000) throw new Error('expenseDate tidak boleh di masa depan.');
     data.expenseDate = expenseDate;
   }
 

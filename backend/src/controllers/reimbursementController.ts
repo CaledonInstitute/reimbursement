@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import reimbursementService from '../services/reimbursementService';
 import reimbursementView from '../views/reimbursementView';
+import { uploadReceiptToMinio } from '../middleware/uploadReceipt';
 
 const listReimbursements: RequestHandler = async (req, res, next) => {
   try {
@@ -150,7 +151,7 @@ const uploadReceipt: RequestHandler = async (req, res, next) => {
     if (!['DRAFT', 'REVISION_REQUIRED'].includes(reimbursement.status)) {
       return res.status(400).json({ success: false, message: 'Bukti hanya bisa diunggah saat DRAFT atau REVISION_REQUIRED.' });
     }
-    const receiptUrl = `${authReq.protocol}://${authReq.get('host')}/uploads/${authReq.file.filename}`;
+    const receiptUrl = await uploadReceiptToMinio(authReq.file);
     const updated = await reimbursementService.updateReimbursement(authReq.params.id, { receiptUrl }, authReq.user);
     return res.json({ success: true, data: reimbursementView.formatReimbursement(updated) });
   } catch (error) {
