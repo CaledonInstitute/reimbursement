@@ -15,13 +15,15 @@ const VALID_STATUSES = Object.values(STATUS);
 
 const validateReceiptUrl = (receiptUrl: unknown) => {
   if (!receiptUrl) return null;
+  const value = String(receiptUrl).trim();
+  if (value.startsWith('/')) return value; // path relatif '/storage/...' yang di-proxy frontend
   try {
-    const url = new URL(String(receiptUrl));
+    const url = new URL(value);
     if (!['http:', 'https:'].includes(url.protocol)) throw new Error();
   } catch {
     throw new Error('receiptUrl harus berupa URL http atau https yang valid.');
   }
-  return String(receiptUrl).trim();
+  return value;
 };
 
 const includeRelations: any = {

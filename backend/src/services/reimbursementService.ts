@@ -3,12 +3,20 @@ import auditLogModel from '../models/auditLogModel';
 
 const STATUS = reimbursementModel.STATUS;
 
+const isValidReceiptUrl = (value: string) => {
+  if (value.startsWith('/')) return true; // path relatif '/storage/...' yang di-proxy frontend
+  try {
+    const url = new URL(value);
+    return ['http:', 'https:'].includes(url.protocol);
+  } catch {
+    return false;
+  }
+};
+
 const validateReceiptUrl = (receiptUrl: unknown) => {
   if (!receiptUrl) return;
-  try {
-    const url = new URL(String(receiptUrl));
-    if (!['http:', 'https:'].includes(url.protocol)) throw new Error();
-  } catch {
+  const value = String(receiptUrl).trim();
+  if (!isValidReceiptUrl(value)) {
     throw new Error('receiptUrl harus berupa URL http atau https yang valid.');
   }
 };
