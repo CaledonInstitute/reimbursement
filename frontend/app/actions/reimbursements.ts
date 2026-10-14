@@ -25,6 +25,11 @@ async function request<T>(path: string, init: RequestInit = {}, token?: string):
   const payload = await response.json().catch(() => ({}));
 
   if (!response.ok || payload?.success === false) {
+    // Sesi invalid (user hilang/token stale) -> bersihkan sesi lokal supaya user login ulang
+    if (response.status === 401 && typeof window !== 'undefined') {
+      localStorage.removeItem('reimbursement_token');
+      localStorage.removeItem('reimbursement_user');
+    }
     throw new Error(payload?.message || 'Request failed');
   }
 
@@ -152,4 +157,44 @@ export async function updateProfilePassword(token: string, data: { currentPasswo
       password: data.newPassword,
     }),
   }, token);
+}
+
+export async function updateProfileName(token: string, data: { name: string; avatar?: File | null; removeAvatar?: boolean }) {
+  const formData = new FormData();
+  formData.set('name', data.name);
+  if (data.avatar) formData.set('avatar', data.avatar);
+  if (data.removeAvatar) formData.set('avatarUrl', 'null');
+  return request<{ user: unknown; token: string }>('/profile', {
+    method: 'PATCH',
+    body: formData,
+  }, token);
+}
+
+export type LoginDevice = {
+  id: number;
+  tokenId: string;
+  userAgent: string | null;
+  ip: string | null;
+  current: boolean;
+  createdAt: string;
+  lastActiveAt: string;
+};
+
+export async function listDevices(token: string) {
+  return request<LoginDevice[]>('/profile/devices', { method: 'GET' }, token);
+}
+
+export async function revokeDevice(token: string, deviceId: number) {
+  return request<{ revoked: number; currentToo: boolean }>(`/profile/devices/${deviceId}`, { method: 'DELETE' }, token);
+}
+
+export async function revokeAllDevices(token: string) {
+  return request<{ revoked: number; currentToo: boolean }>('/profile/devices/logout-all', {
+    method: 'POST',
+    body: JSON.stringify({ all: true }),
+  }, token);
+}
+
+export async function disconnectGoogle(token: string) {
+  return request<unknown>('/profile/google/disconnect', { method: 'POST' }, token);
 }

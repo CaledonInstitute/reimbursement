@@ -1,5 +1,7 @@
 import withPWA from '@ducanh2912/next-pwa'
 
+const MINIO_URL = process.env.MINIO_URL || 'http://localhost:9000';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {
@@ -15,6 +17,10 @@ const nextConfig = {
       {
         source: '/api/auth/google',
         destination: (process.env.BACKEND_URL || 'http://localhost:3001') + '/auth/google',
+      },
+      {
+        source: '/storage/:path*',
+        destination: MINIO_URL + '/receipts/:path*',
       },
       {
         source: '/api/:path*',

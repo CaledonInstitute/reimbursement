@@ -61,13 +61,13 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/reimbursement?schema=public
       JWT_SECRET: jwt_secret_super_rahasia_2026_x9f2k8
       PORT: 3001
-      CORS_ORIGIN: http://localhost:3000
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,https://feels-significant-replaced-forecast.trycloudflare.com}
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       MINIO_BUCKET: receipts
-      MINIO_PUBLIC_URL: http://localhost:9000/receipts
+      MINIO_PUBLIC_URL: /storage
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
@@ -81,6 +81,7 @@ services:
       context: ./frontend
       args:
         BACKEND_URL: http://backend:3001
+        MINIO_URL: http://minio:9000
     container_name: reimbursement-frontend
     restart: unless-stopped
     depends_on:
@@ -88,6 +89,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: /api
       BACKEND_URL: http://backend:3001
+      MINIO_URL: http://minio:9000
     ports:
       - "3000:3000"
 

@@ -2,13 +2,15 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { loginUser, registerUser, listClaims, updateProfilePassword } from '@/app/actions/reimbursements';
+import { loginUser, registerUser, listClaims, updateProfilePassword, updateProfileName, disconnectGoogle as apiDisconnectGoogle } from '@/app/actions/reimbursements';
 
 export type AuthUser = {
   id: number;
   name: string;
   email: string;
   role: 'EMPLOYEE' | 'MANAGER' | 'FINANCE';
+  avatarUrl?: string | null;
+  googleId?: string | null;
 };
 
 type Session = {
@@ -21,6 +23,8 @@ type Session = {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
+  updateProfile: (data: { name?: string; avatar?: File | null; removeAvatar?: boolean }) => Promise<void>;
+  disconnectGoogle: () => Promise<void>;
 };
 
 const SessionContext = createContext<Session | null>(null);
@@ -124,6 +128,17 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     persist(response.user as AuthUser, response.token);
   };
 
+  const updateProfile = async (data: { name?: string; avatar?: File | null; removeAvatar?: boolean }) => {
+    const response = await updateProfileName(token, data);
+    persist(response.user as AuthUser, response.token);
+  };
+
+  const doDisconnectGoogle = async () => {
+    await apiDisconnectGoogle(token);
+    const nextUser = user ? { ...user, googleId: null } : user;
+    if (nextUser) persist(nextUser as AuthUser, token);
+  };
+
   // Redirect guards
   useEffect(() => {
     if (!ready) return;
@@ -143,6 +158,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     register,
     logout,
     changePassword,
+    updateProfile,
+    disconnectGoogle: doDisconnectGoogle,
   }), [user, token, ready, claims, loadClaims, logout]);
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;

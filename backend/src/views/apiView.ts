@@ -3,6 +3,8 @@ const formatUser = (user: any) => ({
   name: user.name,
   email: user.email,
   role: user.role,
+  avatarUrl: user.avatarUrl,
+  googleId: user.googleId,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });

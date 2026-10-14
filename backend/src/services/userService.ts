@@ -69,6 +69,14 @@ const updateUser = async (id: unknown, payload: any) => {
     data.role = normalizeRole(payload.role);
   }
 
+  if (payload.avatarUrl !== undefined) {
+    data.avatarUrl = payload.avatarUrl;
+  }
+
+  if (payload.googleId !== undefined) {
+    data.googleId = payload.googleId;
+  }
+
   if (payload.password !== undefined) {
     if (typeof payload.password !== 'string' || payload.password.length < 6) {
       throw new Error('password minimal 6 karakter.');

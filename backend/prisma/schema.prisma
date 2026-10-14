@@ -79,14 +79,30 @@ model User {
   email                  String                 @unique
   password               String
   role                   UserRole
+  avatarUrl              String?
+  googleId               String?                @unique
   createdAt              DateTime               @default(now())
   updatedAt              DateTime               @updatedAt
+  devices                LoginDevice[]
   employeeReimbursements Reimbursement[]        @relation("EmployeeReimbursements")
   managerReimbursements  Reimbursement[]        @relation("ManagerReimbursements")
   financeReimbursements  Reimbursement[]        @relation("FinanceReimbursements")
   historyEntries         ReimbursementHistory[] @relation("HistoryActors")
   notifications          Notification[]
   auditLogs              AuditLog[]
+}
+
+model LoginDevice {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  tokenId      String   @unique
+  userAgent    String?
+  ip           String?
+  createdAt    DateTime @default(now())
+  lastActiveAt DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Expense {

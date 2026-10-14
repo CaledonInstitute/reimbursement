@@ -6,7 +6,10 @@ const minioPort = Number(process.env.MINIO_PORT || 9000);
 const minioAccessKey = process.env.MINIO_ACCESS_KEY || 'minioadmin';
 const minioSecretKey = process.env.MINIO_SECRET_KEY || 'minioadmin';
 const minioBucket = process.env.MINIO_BUCKET || 'receipts';
-const minioPublicUrl = process.env.MINIO_PUBLIC_URL || `http://${minioEndpoint}:${minioPort}/${minioBucket}`;
+// URL publik yang disimpan ke DB & dikirim ke browser.
+// Pakai path relatif '/storage' supaya ikut domain frontend (localhost / tunnel),
+// lalu di-proxy oleh Next.js rewrite ke MinIO (MINIO_URL di docker-compose).
+const minioPublicUrl = process.env.MINIO_PUBLIC_URL || `/storage`;
 
 const s3 = new S3Client({
   endpoint: `http://${minioEndpoint}:${minioPort}`,
@@ -35,6 +38,20 @@ const uploadReceipt = multer({
 export async function uploadReceiptToMinio(file: Express.Multer.File): Promise<string> {
   const extension = (file.originalname.match(/\.[^.]+$/) || [''])[0].toLowerCase();
   const key = `receipt-${Date.now()}-${Math.round(Math.random() * 1e9)}${extension}`;
+
+  await s3.send(new PutObjectCommand({
+    Bucket: minioBucket,
+    Key: key,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+  }));
+
+  return `${minioPublicUrl}/${key}`;
+}
+
+export async function uploadAvatarToMinio(file: Express.Multer.File): Promise<string> {
+  const extension = (file.originalname.match(/\.[^.]+$/) || ['.jpg'])[0].toLowerCase();
+  const key = `avatar-${Date.now()}-${Math.round(Math.random() * 1e9)}${extension}`;
 
   await s3.send(new PutObjectCommand({
     Bucket: minioBucket,

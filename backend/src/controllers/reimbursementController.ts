@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import reimbursementService from '../services/reimbursementService';
 import reimbursementView from '../views/reimbursementView';
+import userService from '../services/userService';
 import { uploadReceiptToMinio } from '../middleware/uploadReceipt';
 
 const listReimbursements: RequestHandler = async (req, res, next) => {
@@ -60,11 +61,21 @@ const deleteReimbursement: RequestHandler = async (req, res, next) => {
 const createReimbursement: RequestHandler = async (req, res) => {
   try {
     const authReq = req as typeof req & { user?: any; body: Record<string, any> };
+    // Validasi user dari token benar-benar ada di DB — mencegah FK violation
+    // (P2003) kalau token membawa id user yang sudah tidak ada.
+    const employee = await userService.getUserById(authReq.user.id);
+    if (!employee) {
+      return res.status(401).json({
+        success: false,
+        message: 'Sesi tidak valid: user tidak ditemukan. Silakan login ulang.',
+      });
+    }
+
     const reimbursement = await reimbursementService.createReimbursement({
       ...authReq.body,
-      employeeId: authReq.user.id,
-      employeeName: authReq.user.name,
-      employeeEmail: authReq.user.email,
+      employeeId: employee.id,
+      employeeName: employee.name,
+      employeeEmail: employee.email,
       managerId: undefined,
       financeId: undefined,
       status: 'DRAFT',
